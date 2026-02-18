@@ -6,6 +6,68 @@
     <title>Inscription - ABEL SHINE</title>
     <link rel="icon" type="image/jpg" href="https://i.postimg.cc/P5BS0g8h/IMG-20260214-WA0014.jpg">
     <link rel="stylesheet" href="style.css">
+    <style>
+        .success-message {
+            background: linear-gradient(145deg, #d4edda, #c3e6cb);
+            color: #155724;
+            padding: 3rem;
+            border-radius: 80px;
+            text-align: center;
+            margin: 3rem 0;
+            border: 3px solid #28a745;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            font-size: 1.5rem;
+        }
+        .btn-ok {
+            background: linear-gradient(45deg, #6a5acd, #ff69b4, #ffa500, #40e0d0);
+            background-size: 300% 300%;
+            animation: gradientShift 5s ease infinite;
+            color: white;
+            font-size: 1.5rem;
+            padding: 1rem 4rem;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-top: 2rem;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .btn-ok:hover {
+            transform: scale(1.1) rotate(2deg);
+        }
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 50px;
+            margin: 1rem 0;
+            text-align: center;
+            display: none;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #c8a2c8;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -35,88 +97,56 @@
             <p>Rejoignez la formation professionnelle (20.000 Gds/mois). Remplissez ce formulaire.</p>
         </section>
 
-        <!-- GESTION DE L'AFFICHAGE APRÈS SOUMISSION -->
-        <div id="form-container">
-            <div id="confirmation-message" style="display: none;" class="confirmation-message">
-                <h2>✨ Merci pour votre inscription, ✨</h2>
-                <p style="font-size: 2rem; margin: 2rem 0;">Votre demande a bien été reçue !</p>
-                <p>Nous allons vous contacter très prochainement sur <strong>WhatsApp</strong> pour finaliser votre inscription et procéder au paiement via <strong>Natcash ou Moncash</strong>.</p>
-                <p>À très bientôt chez ABEL SHINE !</p>
-                <button class="btn-ok" onclick="redirectToHome()">OK</button>
-            </div>
+        <!-- Message d'erreur -->
+        <div id="errorMessage" class="error-message"></div>
 
-            <div id="inscription-form">
-                <form action="https://formspree.io/f/xreakqga" method="POST" class="info-card" onsubmit="return handleSubmit(event)">
-                    <!-- Champ caché pour éviter les messages auto -->
-                    <input type="hidden" name="_gotcha" style="display:none!important">
-                    <input type="hidden" name="_subject" value="Nouvelle inscription école ABEL SHINE">
-                    
-                    <label for="name">Nom & Prénom complets :</label>
-                    <input type="text" id="name" name="Nom complet" required>
-
-                    <label for="phone">Numéro WhatsApp :</label>
-                    <input type="tel" id="phone" name="WhatsApp" placeholder="Ex: +509 31 11 11 11" required>
-
-                    <label for="email">Email :</label>
-                    <input type="email" id="email" name="Email" required>
-
-                    <label for="formation">Formation choisie :</label>
-                    <select id="formation" name="Formation" required>
-                        <option value="Onglerie">Onglerie</option>
-                        <option value="Coiffure">Coiffure</option>
-                        <option value="Maquillage">Maquillage</option>
-                        <option value="Tresses Africaines">Tresses Africaines</option>
-                        <option value="Cils/Henna">Cils / Henna</option>
-                    </select>
-
-                    <label for="message">Message ou questions (optionnel) :</label>
-                    <textarea id="message" name="Message" rows="4"></textarea>
-
-                    <p style="margin: 1rem 0;">En soumettant, vous acceptez qu'on vous contacte par WhatsApp pour le paiement.</p>
-
-                    <button type="submit" style="width: 100%;">📤 Envoyer ma demande d'inscription</button>
-                </form>
-            </div>
+        <!-- Indicateur de chargement -->
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p style="margin-top: 1rem;">Envoi en cours...</p>
         </div>
-<script>
-function handleSubmit(event) {
-    event.preventDefault();
-    const form = event.target;
-    const formData = new FormData(form);
-    
-    // Convertir FormData en objet JSON
-    const data = {
-        name: formData.get('Nom complet'),
-        phone: formData.get('WhatsApp'),
-        email: formData.get('Email'),
-        formation: formData.get('Formation'),
-        message: formData.get('Message')
-    };
 
-    // Envoyer à votre backend Render
-    fetch('https://votre-app-render.onrender.com/api/inscriptions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById('inscription-form').style.display = 'none';
-            document.getElementById('confirmation-message').style.display = 'block';
-            form.reset();
-        } else {
-            alert("Une erreur s'est produite. Veuillez réessayer.");
-        }
-    })
-    .catch(error => {
-        console.error('Erreur:', error);
-        alert("Problème de connexion. Veuillez vérifier votre réseau.");
-    });
-    
-    return false;
-}
-</script>
+        <!-- Message de confirmation -->
+        <div id="confirmationMessage" style="display: none;" class="success-message">
+            <h2>✨ Merci pour votre inscription ! ✨</h2>
+            <p style="font-size: 2rem; margin: 2rem 0;">Votre demande a bien été reçue !</p>
+            <p>Nous allons vous contacter très prochainement sur <strong>WhatsApp</strong> pour finaliser votre inscription et procéder au paiement via <strong>Natcash ou Moncash</strong>.</p>
+            <p>À très bientôt chez ABEL SHINE !</p>
+            <button class="btn-ok" onclick="redirectToHome()">OK</button>
+        </div>
+
+        <!-- Formulaire d'inscription -->
+        <div id="inscriptionForm">
+            <form id="inscriptionFormElement" class="info-card" onsubmit="return handleSubmit(event)">
+                <label for="name">Nom & Prénom complets :</label>
+                <input type="text" id="name" name="name" placeholder="Ex: Jean Dupont" required>
+
+                <label for="phone">Numéro WhatsApp :</label>
+                <input type="tel" id="phone" name="phone" placeholder="Ex: 509 31 11 11 11" required>
+
+                <label for="email">Email :</label>
+                <input type="email" id="email" name="email" placeholder="Ex: jean.dupont@email.com" required>
+
+                <label for="formation">Formation choisie :</label>
+                <select id="formation" name="formation" required>
+                    <option value="">Sélectionnez une formation</option>
+                    <option value="Onglerie">Onglerie</option>
+                    <option value="Coiffure">Coiffure</option>
+                    <option value="Maquillage">Maquillage</option>
+                    <option value="Tresses Africaines">Tresses Africaines</option>
+                    <option value="Cils/Henna">Cils / Henna</option>
+                </select>
+
+                <label for="message">Message ou questions (optionnel) :</label>
+                <textarea id="message" name="message" rows="4" placeholder="Vos questions..."></textarea>
+
+                <p style="margin: 1rem 0; color: #666; font-size: 0.9rem;">
+                    En soumettant ce formulaire, vous acceptez d'être contacté par WhatsApp pour le suivi de votre inscription.
+                </p>
+
+                <button type="submit" style="width: 100%;">📤 Envoyer ma demande d'inscription</button>
+            </form>
+        </div>
     </main>
 
     <footer>
@@ -132,12 +162,137 @@ function handleSubmit(event) {
             </div>
             <div>
                 <h3>Contact</h3>
-                <p>📞 +41 32 111 95 / 55 66 08 98<br>📧 AbeleShine.ecole@gmail.com</p>
+                <p>📞 41 32 111 95 / 55 66 08 98<br>📧 AbeleShine.ecole@gmail.com</p>
             </div>
         </div>
         <div class="copyright">
             <p>© 2026 ABEL SHINE - Tous droits réservés | Site créé by E.S Company</p>
         </div>
     </footer>
+
+    <script>
+        // Configuration - À MODIFIER avec votre URL Render
+        const API_BASE_URL = 'https://votre-app-render.onrender.com'; // Remplacez par votre URL Render
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            // Récupérer le formulaire
+            const form = event.target;
+            
+            // Afficher le chargement
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Récupérer les données du formulaire
+            const formData = new FormData(form);
+            const data = {
+                nom: formData.get('name'),
+                whatsapp: formData.get('phone'),
+                email: formData.get('email'),
+                formation: formData.get('formation'),
+                message: formData.get('message') || ''
+            };
+
+            // Validation côté client
+            if (!data.nom || !data.whatsapp || !data.email || !data.formation) {
+                showError('Tous les champs obligatoires doivent être remplis');
+                document.getElementById('loading').style.display = 'none';
+                return false;
+            }
+
+            // Validation email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(data.email)) {
+                showError('Veuillez entrer une adresse email valide');
+                document.getElementById('loading').style.display = 'none';
+                return false;
+            }
+
+            try {
+                console.log('📤 Envoi des données:', data);
+                
+                const response = await fetch(`${API_BASE_URL}/api/inscriptions`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                console.log('📥 Réponse serveur:', result);
+
+                if (response.ok && result.success) {
+                    // Succès : afficher le message de confirmation
+                    document.getElementById('inscriptionForm').style.display = 'none';
+                    document.getElementById('confirmationMessage').style.display = 'block';
+                    form.reset(); // Vider le formulaire
+                    
+                    // Optionnel : envoyer un événement à Google Analytics si utilisé
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'inscription', {
+                            'event_category': 'formulaire',
+                            'event_label': data.formation
+                        });
+                    }
+                } else {
+                    // Erreur retournée par le serveur
+                    showError(result.error || 'Une erreur est survenue. Veuillez réessayer.');
+                }
+            } catch (error) {
+                console.error('❌ Erreur réseau:', error);
+                showError('Problème de connexion au serveur. Vérifiez votre connexion internet et réessayez.');
+            } finally {
+                // Cacher le chargement
+                document.getElementById('loading').style.display = 'none';
+            }
+            
+            return false;
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            // Faire défiler jusqu'au message d'erreur
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Cacher automatiquement après 5 secondes
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function redirectToHome() {
+            window.location.href = 'index.html';
+        }
+
+        // Gestion de la touche Entrée dans les champs
+        document.querySelectorAll('input, select, textarea').forEach(element => {
+            element.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        // Animation d'apparition du formulaire
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.querySelector('.info-card');
+            if (form) {
+                form.style.opacity = '0';
+                form.style.transform = 'translateY(20px)';
+                form.style.transition = 'all 0.5s ease';
+                
+                setTimeout(() => {
+                    form.style.opacity = '1';
+                    form.style.transform = 'translateY(0)';
+                }, 100);
+            }
+        });
+    </script>
 </body>
 </html>
