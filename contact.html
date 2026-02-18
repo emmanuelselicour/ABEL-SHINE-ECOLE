@@ -83,35 +83,42 @@
                 </form>
             </div>
         </div>
+<script>
+function handleContactSubmit(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    const data = {
+        nom: formData.get('Nom'),
+        whatsapp: formData.get('WhatsApp'),
+        email: formData.get('Email'),
+        message: formData.get('Message')
+    };
 
-        <script>
-            function handleContactSubmit(event) {
-                event.preventDefault();
-                const form = event.target;
-                const formData = new FormData(form);
-
-                fetch(form.action, {
-                    method: form.method,
-                    body: formData,
-                    headers: {'Accept': 'application/json'}
-                }).then(response => {
-                    if (response.ok) {
-                        document.getElementById('contact-form').style.display = 'none';
-                        document.getElementById('contact-confirmation').style.display = 'block';
-                        form.reset();
-                    } else {
-                        alert("Erreur lors de l'envoi. Veuillez réessayer.");
-                    }
-                }).catch(error => {
-                    alert("Problème de connexion.");
-                });
-                return false;
-            }
-
-            function redirectHomeContact() {
-                window.location.href = 'index.html';
-            }
-        </script>
+    fetch('https://votre-app-render.onrender.com/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('contact-form').style.display = 'none';
+            document.getElementById('contact-confirmation').style.display = 'block';
+            form.reset();
+        } else {
+            alert("Une erreur s'est produite. Veuillez réessayer.");
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert("Problème de connexion.");
+    });
+    
+    return false;
+}
+</script>
     </main>
 
     <footer>
