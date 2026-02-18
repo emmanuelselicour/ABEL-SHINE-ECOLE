@@ -171,20 +171,19 @@
     </footer>
 
     <script>
-        // Configuration - À MODIFIER avec votre URL Render
-        const API_BASE_URL = 'https://abel-shine-admin-panel.onrender.com/'; // Remplacez par votre URL Render
-
+        // CONFIGURATION - URL de votre backend Render (CORRIGÉE)
+        const API_BASE_URL = 'https://abel-shine-admin-panel.onrender.com';
+        
         async function handleSubmit(event) {
             event.preventDefault();
             
-            // Récupérer le formulaire
             const form = event.target;
             
             // Afficher le chargement
             document.getElementById('loading').style.display = 'block';
             document.getElementById('errorMessage').style.display = 'none';
             
-            // Récupérer les données du formulaire
+            // Récupérer les données
             const formData = new FormData(form);
             const data = {
                 nom: formData.get('name'),
@@ -194,58 +193,38 @@
                 message: formData.get('message') || ''
             };
 
-            // Validation côté client
-            if (!data.nom || !data.whatsapp || !data.email || !data.formation) {
-                showError('Tous les champs obligatoires doivent être remplis');
-                document.getElementById('loading').style.display = 'none';
-                return false;
-            }
-
-            // Validation email
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(data.email)) {
-                showError('Veuillez entrer une adresse email valide');
-                document.getElementById('loading').style.display = 'none';
-                return false;
-            }
+            console.log('📤 Envoi vers:', `${API_BASE_URL}/api/inscriptions`);
+            console.log('📦 Données:', data);
 
             try {
-                console.log('📤 Envoi des données:', data);
-                
                 const response = await fetch(`${API_BASE_URL}/api/inscriptions`, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify(data),
+                    mode: 'cors' // Important pour CORS
                 });
 
+                console.log('📥 Statut réponse:', response.status);
+                
                 const result = await response.json();
-                console.log('📥 Réponse serveur:', result);
+                console.log('📥 Réponse:', result);
 
                 if (response.ok && result.success) {
-                    // Succès : afficher le message de confirmation
+                    // Succès
                     document.getElementById('inscriptionForm').style.display = 'none';
                     document.getElementById('confirmationMessage').style.display = 'block';
-                    form.reset(); // Vider le formulaire
-                    
-                    // Optionnel : envoyer un événement à Google Analytics si utilisé
-                    if (typeof gtag !== 'undefined') {
-                        gtag('event', 'inscription', {
-                            'event_category': 'formulaire',
-                            'event_label': data.formation
-                        });
-                    }
+                    form.reset();
                 } else {
-                    // Erreur retournée par le serveur
+                    // Erreur
                     showError(result.error || 'Une erreur est survenue. Veuillez réessayer.');
                 }
             } catch (error) {
-                console.error('❌ Erreur réseau:', error);
-                showError('Problème de connexion au serveur. Vérifiez votre connexion internet et réessayez.');
+                console.error('❌ Erreur détaillée:', error);
+                showError('Problème de connexion au serveur. Vérifiez que le backend est accessible.');
             } finally {
-                // Cacher le chargement
                 document.getElementById('loading').style.display = 'none';
             }
             
@@ -257,10 +236,6 @@
             errorDiv.textContent = message;
             errorDiv.style.display = 'block';
             
-            // Faire défiler jusqu'au message d'erreur
-            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
-            // Cacher automatiquement après 5 secondes
             setTimeout(() => {
                 errorDiv.style.display = 'none';
             }, 5000);
@@ -269,30 +244,6 @@
         function redirectToHome() {
             window.location.href = 'index.html';
         }
-
-        // Gestion de la touche Entrée dans les champs
-        document.querySelectorAll('input, select, textarea').forEach(element => {
-            element.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
-                    e.preventDefault();
-                }
-            });
-        });
-
-        // Animation d'apparition du formulaire
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.querySelector('.info-card');
-            if (form) {
-                form.style.opacity = '0';
-                form.style.transform = 'translateY(20px)';
-                form.style.transition = 'all 0.5s ease';
-                
-                setTimeout(() => {
-                    form.style.opacity = '1';
-                    form.style.transform = 'translateY(0)';
-                }, 100);
-            }
-        });
     </script>
 </body>
 </html>
